@@ -1,5 +1,5 @@
 import { Segment, useDefault } from 'segmentit';
-import { ViewPlugin, Decoration } from "@codemirror/view";
+import { ViewPlugin, Decoration, EditorView } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 
 // 创建分词器实例并加载默认词典
@@ -14,16 +14,63 @@ function containsChinese(text) {
   return /[\u4e00-\u9fa5]/.test(text);
 }
 
+// 在指定位置查找中文词语
+function findChineseWordAt(text, pos) {
+  if (!containsChinese(text)) return null;
+  
+  const segments = segment.doSegment(text);
+  let currentPos = 0;
+  
+  for (let seg of segments) {
+    const start = currentPos;
+    const end = start + seg.w.length;
+    
+    if (pos >= start && pos < end) {
+      return { from: start, to: end, word: seg.w };
+    }
+    
+    currentPos = end;
+  }
+  
+  return null;
+}
+
 // 创建中文分词插件
 export const chineseSegmentation = ViewPlugin.fromClass(class {
   constructor(view) {
     this.decorations = this.buildDecorations(view);
+    this.handleDblClick = this.handleDblClick.bind(this);
+    view.dom.addEventListener('dblclick', this.handleDblClick);
+  }
+
+  destroy(view) {
+    view.dom.removeEventListener('dblclick', this.handleDblClick);
+  }
+
+  handleDblClick(event) {
+    const view = this.view;
+    const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
+    if (pos === null) return;
+
+    const line = view.state.doc.lineAt(pos);
+    const wordInfo = findChineseWordAt(line.text, pos - line.from);
+    
+    if (wordInfo) {
+      event.preventDefault();
+      view.dispatch({
+        selection: {
+          anchor: line.from + wordInfo.from,
+          head: line.from + wordInfo.to
+        }
+      });
+    }
   }
 
   update(update) {
     if (update.docChanged || update.viewportChanged) {
       this.decorations = this.buildDecorations(update.view);
     }
+    this.view = update.view;
   }
 
   buildDecorations(view) {
