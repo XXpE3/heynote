@@ -122,4 +122,7 @@ export const heynoteBase = EditorView.theme({
     '.heynote-link': {
         textDecoration: "underline",
     },
+    ".cm-chinese-segment": {
+        borderRight: "1px dotted rgba(128, 128, 128, 0.2)",
+    },
 })

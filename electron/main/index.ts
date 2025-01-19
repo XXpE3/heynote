@@ -3,7 +3,7 @@ import { release } from 'node:os'
 import { join } from 'node:path'
 import fs from "fs"
 
-import { WINDOW_CLOSE_EVENT, SETTINGS_CHANGE_EVENT } from '@/src/common/constants'
+import { WINDOW_CLOSE_EVENT, SETTINGS_CHANGE_EVENT } from '../../src/common/constants'
 
 import { menu, getTrayMenu, getEditorContextMenu } from './menu'
 import CONFIG from "../config"
@@ -185,7 +185,7 @@ async function createWindow() {
     if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
         win.loadURL(url + '?dev=1')
         // Open devTool if the app is not packaged
-        //win.webContents.openDevTools()
+        win.webContents.openDevTools()
     } else {
         win.loadFile(indexHtml)
         //win.webContents.openDevTools()

@@ -26,6 +26,7 @@ import { NoteFormat } from "../common/note-format.js"
 import { AUTO_SAVE_INTERVAL } from "../common/constants.js"
 import { useHeynoteStore } from "../stores/heynote-store.js";
 import { useErrorStore } from "../stores/error-store.js";
+import { chineseSegmentation } from "./chinese-segmentation.js"
 
 
 function getKeymapExtensions(editor, keymap) {
@@ -112,6 +113,7 @@ export class HeynoteEditor {
                 todoCheckboxPlugin,
                 markdown(),
                 links,
+                chineseSegmentation,
             ],
         })
 
